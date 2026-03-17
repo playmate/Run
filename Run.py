@@ -17,7 +17,6 @@ with st.expander("⚙️ Inställningar", expanded=True):
     )
 
     veckor = st.slider("Antal veckor", 4, 16, 8)
-
     dagar_per_vecka = st.slider("Pass per vecka", 2, 6, 4)
 
 generate = st.button("Generera löpschema")
@@ -31,26 +30,19 @@ def hamta_mal_km(distans):
         "Maraton (42 km)": 42
     }[distans]
 
-def bas_langd(niva):
-    return {
-        "Nybörjare": 3,
-        "Medel": 5,
-        "Avancerad": 8
-    }[niva]
-
-def skapa_vecka(vecka_nr, total_veckor, mal_km, niva, dagar):
+def skapa_vecka(vecka_nr, total_veckor, mal_km, dagar):
     progression = vecka_nr / total_veckor
     langpass = round(mal_km * (0.5 + progression * 0.8), 1)
 
     pass_lista = []
 
-    typer = ["Lugn distans", "Intervaller", "Tempo", "Långpass"]
+    typer = ["Lugn distans", "Intervaller", "Tempo"]
 
     for i in range(dagar):
         if i == dagar - 1:
             pass_lista.append(("Långpass", f"{langpass} km"))
         else:
-            typ = random.choice(typer[:-1])
+            typ = random.choice(typer)
 
             if typ == "Intervaller":
                 pass_lista.append(("Intervaller", "5 x 3 min"))
@@ -59,7 +51,7 @@ def skapa_vecka(vecka_nr, total_veckor, mal_km, niva, dagar):
             else:
                 pass_lista.append(("Lugn distans", f"{round(mal_km * 0.5,1)} km"))
 
-    # Lägg in vilodagar
+    # fyll upp med vilodagar
     while len(pass_lista) < 7:
         pass_lista.insert(random.randint(0, len(pass_lista)), ("Vila", "-"))
 
@@ -69,20 +61,24 @@ def skapa_vecka(vecka_nr, total_veckor, mal_km, niva, dagar):
 if generate:
     mal_km = hamta_mal_km(distans)
 
+    dagar_namn = ["Mån","Tis","Ons","Tor","Fre","Lör","Sön"]
+
     for vecka in range(1, veckor + 1):
         st.subheader(f"Vecka {vecka}")
 
-        schema = skapa_vecka(vecka, veckor, mal_km, niva, dagar_per_vecka)
+        schema = skapa_vecka(vecka, veckor, mal_km, dagar_per_vecka)
 
+        # --- HTML TABELL ---
         html = "<table style='width:100%;border-collapse:collapse;'>"
+
+        # header
         html += "<tr>"
-
-        dagar_namn = ["Mån","Tis","Ons","Tor","Fre","Lör","Sön"]
-
         for dag in dagar_namn:
             html += f"<th style='border:1px solid #ccc;text-align:center'>{dag}</th>"
-        html += "</tr><tr>"
+        html += "</tr>"
 
+        # innehåll
+        html += "<tr>"
         for typ, info in schema:
             if typ == "Vila":
                 color = "#E0E0E0"
@@ -105,11 +101,12 @@ if generate:
                 {typ}<br>{info}
             </td>
             """
-
         html += "</tr></table>"
+
+        # ✅ RÄTT SÄTT (detta fixar ditt problem)
         st.markdown(html, unsafe_allow_html=True)
 
-        # --- Sammanställning ---
+        # --- SAMMANSTÄLLNING ---
         with st.expander(f"Sammanställning vecka {vecka}", expanded=False):
             total_km = 0
             pass_count = 0
@@ -124,3 +121,7 @@ if generate:
             **Antal pass:** {pass_count}  
             **Total distans:** {round(total_km,1)} km
             """)
+
+        # --- separator ---
+        if vecka < veckor:
+            st.markdown("<hr style='border:1px solid #e0e0e0;'>", unsafe_allow_html=True)
