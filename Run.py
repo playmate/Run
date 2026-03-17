@@ -3,7 +3,11 @@ import random
 
 st.set_page_config(page_title="Måltidscoach", layout="wide")
 
-st.title("🥗 Proteinrik Måltidscoach")
+st.title("🍽️ Måltidscoach - Proteinrika och kalorisnåla måltider")
+
+# Kategorier
+categories = ["Fisk", "Kyckling", "Tofu", "Vegetariskt", "Nötter", "Ägg"]
+selected_categories = st.multiselect("Välj kategorier att inkludera:", categories, default=categories)
 
 # --- Lista på rätter ---
 meals = [
@@ -80,42 +84,29 @@ meals = [
     {"name": "Ratatouille med linser", "category": "Vegetariskt"},
 ]
 
-# --- Kategorifilter ---
-categories = list(set([meal["category"] for meal in meals]))
-selected_categories = st.multiselect("Välj kategorier att inkludera:", categories, default=categories)
-
-# Filtrera måltider
+# Filtera måltider baserat på valda kategorier
 filtered_meals = [meal for meal in meals if meal["category"] in selected_categories]
 
-# --- Generera veckoschema ---
-if st.button("🎯 Generera veckoschema"):
-    week_days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag"]
-    schedule = {}
-    for day in week_days:
+st.subheader("Generera dagsmeny")
+if st.button("🎯 Generera"):
+    if len(filtered_meals) < 2:
+        st.warning("Välj fler kategorier eller lägg till fler rätter för att generera en meny.")
+    else:
         lunch = random.choice(filtered_meals)
-        dinner = random.choice(filtered_meals)
-        schedule[day] = {"Lunch": lunch, "Middag": dinner}
-    
-    st.session_state.schedule = schedule
+        dinner = random.choice([m for m in filtered_meals if m != lunch])
 
-# --- Visa veckoschema ---
-if "schedule" in st.session_state:
-    schedule = st.session_state.schedule
-    for day, meals_for_day in schedule.items():
-        st.subheader(f"📅 {day}")
-        cols = st.columns(2)
-        for i, (meal_type, meal) in enumerate(meals_for_day.items()):
-            with cols[i]:
-                st.markdown(
-                    f"""
-                    <div style="border-radius:10px; padding:10px; background-color:#f0f2f6; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <strong>{meal_type}</strong><br>
-                            {meal['name']}
-                        </div>
-                        <div>
-                            <button onclick="window.location.reload()" style="background:none; border:none; cursor:pointer;">🔄</button>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True
-                )
+        # Visa måltider i snygga kort
+        st.markdown(f"""
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+            <div style="flex:1; padding:20px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); background-color:#f8f9fa;">
+                <h3 style="color:#2e7d32;">Lunch 🍴</h3>
+                <p style="font-size:18px;">{lunch['name']}</p>
+                <p style="color:gray;">Kategori: {lunch['category']}</p>
+            </div>
+            <div style="flex:1; padding:20px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); background-color:#f8f9fa;">
+                <h3 style="color:#d32f2f;">Middag 🍽️</h3>
+                <p style="font-size:18px;">{dinner['name']}</p>
+                <p style="color:gray;">Kategori: {dinner['category']}</p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
