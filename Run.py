@@ -79,7 +79,7 @@ if st.button("✨ Generera schema", use_container_width=True):
             else:
                 typ = random.choice(["Lugn", "Tempo", "Intervaller"])
 
-                if typ == "Intervaller":
+                if typ == "Intervaller":a
                     pass_lista.append(("Intervaller", "5 x 2 min"))
                 elif typ == "Tempo":
                     pass_lista.append(("Tempo", f"{round(mål_km * 0.5,1)} km"))
