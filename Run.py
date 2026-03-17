@@ -1,13 +1,35 @@
 import streamlit as st
 import random
 
-st.set_page_config(page_title="Måltidscoach", layout="wide")
+st.set_page_config(page_title="Måltidscoach", layout="wide", page_icon="🍽️")
 
 st.title("🍽️ Måltidscoach - Proteinrika och kalorisnåla måltider")
+st.markdown(
+    """
+    <style>
+    /* Ändra hela appens bakgrund och text för mörk design */
+    .stApp {
+        background-color: #121212;
+        color: #e0e0e0;
+    }
+    .stButton>button {
+        background-color:#1f6feb;
+        color:white;
+        border-radius:8px;
+        padding:0.5em 1em;
+        font-size:16px;
+    }
+    </style>
+    """, unsafe_allow_html=True
+)
 
 # Kategorier
 categories = ["Fisk", "Kyckling", "Tofu", "Vegetariskt", "Nötter", "Ägg"]
-selected_categories = st.multiselect("Välj kategorier att inkludera:", categories, default=categories)
+selected_categories = st.multiselect(
+    "Välj kategorier att inkludera:", 
+    categories, 
+    default=categories
+)
 
 # --- Lista på rätter ---
 meals = [
@@ -84,7 +106,7 @@ meals = [
     {"name": "Ratatouille med linser", "category": "Vegetariskt"},
 ]
 
-# Filtera måltider baserat på valda kategorier
+# Filtera måltider
 filtered_meals = [meal for meal in meals if meal["category"] in selected_categories]
 
 st.subheader("Generera dagsmeny")
@@ -95,18 +117,18 @@ if st.button("🎯 Generera"):
         lunch = random.choice(filtered_meals)
         dinner = random.choice([m for m in filtered_meals if m != lunch])
 
-        # Visa måltider i snygga kort
+        # Snygga kort för mörkt tema
         st.markdown(f"""
         <div style="display:flex; gap:20px; flex-wrap:wrap;">
-            <div style="flex:1; padding:20px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); background-color:#f8f9fa;">
-                <h3 style="color:#2e7d32;">Lunch 🍴</h3>
-                <p style="font-size:18px;">{lunch['name']}</p>
-                <p style="color:gray;">Kategori: {lunch['category']}</p>
+            <div style="flex:1; padding:20px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.5); background-color:#1e1e1e;">
+                <h3 style="color:#90caf9;">Lunch 🍴</h3>
+                <p style="font-size:18px; color:#e0e0e0;">{lunch['name']}</p>
+                <p style="color:#b0bec5;">Kategori: {lunch['category']}</p>
             </div>
-            <div style="flex:1; padding:20px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); background-color:#f8f9fa;">
-                <h3 style="color:#d32f2f;">Middag 🍽️</h3>
-                <p style="font-size:18px;">{dinner['name']}</p>
-                <p style="color:gray;">Kategori: {dinner['category']}</p>
+            <div style="flex:1; padding:20px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.5); background-color:#1e1e1e;">
+                <h3 style="color:#f48fb1;">Middag 🍽️</h3>
+                <p style="font-size:18px; color:#e0e0e0;">{dinner['name']}</p>
+                <p style="color:#b0bec5;">Kategori: {dinner['category']}</p>
             </div>
         </div>
         """, unsafe_allow_html=True)
