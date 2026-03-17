@@ -1,90 +1,61 @@
 import streamlit as st
 import random
+import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Löpschema Generator", layout="wide")
-st.title("🏃 Generera löpschema")
-
-# --- SESSION STATE ---
-if "schema_data" not in st.session_state:
-    st.session_state.schema_data = None
+st.set_page_config(page_title="Löpschema", layout="wide")
+st.title("🏃 Löpschema generator")
 
 # --- INPUT ---
-with st.expander("⚙️ Inställningar", expanded=True):
-    distans = st.selectbox(
-        "Mål",
-        ["5 km", "10 km", "Halvmaraton (21 km)", "Maraton (42 km)"]
-    )
+distans = st.selectbox("Mål", ["5 km", "10 km", "21 km", "42 km"])
+veckor = st.slider("Antal veckor", 4, 12, 6)
+pass_per_vecka = st.slider("Pass per vecka", 2, 5, 3)
 
-    niva = st.selectbox(
-        "Nivå",
-        ["Nybörjare", "Medel", "Avancerad"]
-    )
+# --- GENERERA ---
+if "schema" not in st.session_state:
+    st.session_state.schema = None
 
-    veckor = st.slider("Antal veckor", 4, 16, 8)
-    dagar_per_vecka = st.slider("Pass per vecka", 2, 6, 4)
-
-# --- KNAPP ---
-if st.button("Generera löpschema"):
-    def hamta_mal_km(distans):
-        return {
-            "5 km": 5,
-            "10 km": 10,
-            "Halvmaraton (21 km)": 21,
-            "Maraton (42 km)": 42
-        }[distans]
-
-    def skapa_vecka(vecka_nr, total_veckor, mal_km, dagar):
-        progression = vecka_nr / total_veckor
-        langpass = round(mal_km * (0.5 + progression * 0.8), 1)
-
+if st.button("Generera schema"):
+    def skapa_vecka(mål_km):
         pass_lista = []
-        typer = ["Lugn distans", "Intervaller", "Tempo"]
 
-        for i in range(dagar):
-            if i == dagar - 1:
-                pass_lista.append(("Långpass", f"{langpass} km"))
+        for i in range(pass_per_vecka):
+            if i == pass_per_vecka - 1:
+                pass_lista.append(("Långpass", f"{round(mål_km * 0.7,1)} km"))
             else:
-                typ = random.choice(typer)
+                typ = random.choice(["Lugn", "Tempo", "Intervaller"])
 
                 if typ == "Intervaller":
-                    pass_lista.append(("Intervaller", "5 x 3 min"))
+                    pass_lista.append(("Intervaller", "5 x 2 min"))
                 elif typ == "Tempo":
-                    pass_lista.append(("Tempo", f"{round(mal_km * 0.6,1)} km"))
+                    pass_lista.append(("Tempo", f"{round(mål_km * 0.5,1)} km"))
                 else:
-                    pass_lista.append(("Lugn distans", f"{round(mal_km * 0.5,1)} km"))
+                    pass_lista.append(("Lugn", f"{round(mål_km * 0.4,1)} km"))
 
         while len(pass_lista) < 7:
             pass_lista.insert(random.randint(0, len(pass_lista)), ("Vila", "-"))
 
         return pass_lista
 
-    mal_km = hamta_mal_km(distans)
+    mål_km = int(distans.split()[0])
+    st.session_state.schema = [skapa_vecka(mål_km) for _ in range(veckor)]
 
-    veckodata = []
-    for vecka in range(1, veckor + 1):
-        schema = skapa_vecka(vecka, veckor, mal_km, dagar_per_vecka)
-        veckodata.append(schema)
+# --- VISA ---
+if st.session_state.schema:
+    dagar = ["Mån","Tis","Ons","Tor","Fre","Lör","Sön"]
 
-    st.session_state.schema_data = veckodata
-
-# --- VISA SCHEMA ---
-if st.session_state.schema_data:
-    dagar_namn = ["Mån","Tis","Ons","Tor","Fre","Lör","Sön"]
-
-    for vecka_index, schema in enumerate(st.session_state.schema_data, start=1):
-        st.subheader(f"Vecka {vecka_index}")
+    for i, vecka in enumerate(st.session_state.schema, 1):
+        st.subheader(f"Vecka {i}")
 
         html = "<table style='width:100%;border-collapse:collapse;'>"
 
         # header
         html += "<tr>"
-        for dag in dagar_namn:
-            html += f"<th style='border:1px solid #ccc;text-align:center'>{dag}</th>"
-        html += "</tr>"
+        for dag in dagar:
+            html += f"<th style='border:1px solid #ccc;padding:6px'>{dag}</th>"
+        html += "</tr><tr>"
 
         # innehåll
-        html += "<tr>"
-        for typ, info in schema:
+        for typ, info in vecka:
             if typ == "Vila":
                 color = "#E0E0E0"
             elif typ == "Långpass":
@@ -106,27 +77,12 @@ if st.session_state.schema_data:
                 {typ}<br>{info}
             </td>
             """
+
         html += "</tr></table>"
 
-        # ✅ KRITISK RAD (fixar ditt problem)
-        st.markdown(html, unsafe_allow_html=True)
+        # 🔥 STABIL RENDERING (fixar ditt problem 100%)
+        components.html(html, height=120)
 
-        # --- SAMMANSTÄLLNING ---
-        with st.expander(f"Sammanställning vecka {vecka_index}", expanded=False):
-            total_km = 0
-            pass_count = 0
-
-            for typ, info in schema:
-                if "km" in info:
-                    km = float(info.replace(" km",""))
-                    total_km += km
-                    pass_count += 1
-
-            st.markdown(f"""
-            **Antal pass:** {pass_count}  
-            **Total distans:** {round(total_km,1)} km
-            """)
-
-        # --- SEPARATOR ---
-        if vecka_index < len(st.session_state.schema_data):
-            st.markdown("<hr style='border:1px solid #e0e0e0;'>", unsafe_allow_html=True)
+        # separator
+        if i < len(st.session_state.schema):
+            st.divider()
