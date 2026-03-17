@@ -1,41 +1,45 @@
 import streamlit as st
 import random
 
-# Lista med rätter
-meals = [
-    "Grekisk yoghurt med blåbär","Havregrynsgröt med proteinpulver","Äggviteomelett med spenat",
-    "Smoothie med bär och proteinpulver","Cottage cheese med frukt","Chia pudding med mandelmjölk",
-    "Äggmuffins med grönsaker","Proteinpannkakor med bär","Kvarg med nötter och kanel","Avokado och ägg på fullkornsbröd",
-    "Grillad kyckling med broccoli","Lax med sparris","Torsk med blomkålsmos","Kalkonburgare med sallad",
-    "Tonfisksallad med kikärtor","Räksallad med avocado","Köttfärs med zucchini-nudlar","Kycklingwok med grönsaker",
-    "Quinoa med bönor och grönsaker","Grillad halloumi med grönsaker","Äggwrap med spenat","Hummus med selleri",
-    "Proteinbar hemgjord","Edamamebönor","Rökt lax på gurkskivor","Tofu stir-fry","Mini omelett med grönsaker",
-    "Keso med paprika och tomat","Bönsallad med örter","Kalkonskivor med gurka","Kyckling- och svampsoppa",
-    "Linssoppa med grönsaker","Tonfiskröra i paprika","Grillad aubergine med halloumi","Räkor med zucchinipasta",
-    "Tofu med broccoli och cashewnötter","Köttbullar i tomatsås med zucchini","Stekt torsk med spenat",
-    "Kyckling- och quinoasallad","Linsgryta med tomat och paprika","Omelettwrap med lax","Råräkor med avokado",
-    "Grillad kyckling med blomkålssallad","Quorn med grönsaker","Proteinshake med mandelmjölk","Spenat- och fetaomelett",
-    "Sashimi med sallad","Torskburgare med spenat","Kycklingfilé med brysselkål","Räkwok med zucchini"
+# Lista med 80 proteinrika, kalorisnåla rätter (endast lunch & middag)
+dishes = [
+    "Kyckling med broccoli", "Lax med sparris", "Tonfisksallad", "Äggvita omelett", "Grillad kalkon", "Räksallad",
+    "Tofu med grönsaker", "Quinoa & kikärtor", "Spenatsallad med ägg", "Biff med zucchini", "Kikärtssoppa",
+    "Kycklingwok med paprika", "Linsgryta", "Fiskgryta", "Grillad torsk med grönsaker", "Kalkonburgare",
+    "Sallad med räkor och avokado", "Omelett med spenat och svamp", "Grillad kyckling med blomkålsris", "Tonfiskwrap",
+    "Ägg- och spenatwrap", "Kikärtsbiffar", "Lax med citronsås och broccoli", "Grillad aubergine med halloumi", "Kycklingfajita sallad",
+    "Räkor med zucchininudlar", "Grillad biff med sallad", "Tofuwok med broccoli och paprika", "Sallad med kyckling och quinoa",
+    "Fisk med spenat och tomater", "Kalkongryta med grönsaker", "Äggsallad med kalkon", "Linsbiffar med grönsaker",
+    "Tonfisk & avokadosallad", "Kycklinggryta med paprika", "Räkwok med grönsaker", "Spenat- och tofugryta",
+    "Grillad lax med sparris", "Kalkonsallad med kikärtor", "Bönsallad med fetaost", "Kycklingwrap med sallad",
+    "Fisk med citron och zucchini", "Tofuwrap med grönsaker", "Räksallad med quinoa", "Kycklingsallad med avokado",
+    "Tonfisk med spenat och tomat", "Grillad kalkon med grönsaker", "Ägg- och kalkonwrap", "Linsgryta med spenat",
+    "Kyckling med zucchininudlar", "Fiskgryta med tomat och paprika", "Tofuwok med spenat", "Räkor med blomkålsris",
+    "Kalkon med broccoli och morot", "Tonfiskbiffar med sallad", "Kycklinggryta med svamp", "Fisk med quinoa och grönsaker",
+    "Spenatsoppa med äggvita", "Tofuburgare med sallad", "Räksoppa med grönsaker", "Kyckling med paprika och lök",
+    "Grillad lax med tomatsallad", "Kalkonwok med grönsaker", "Tonfisk med bönsallad", "Äggsoppa med spenat",
+    "Laxburgare med sallad", "Kycklingsoppa med grönsaker", "Räkor med avokadosallad", "Tofusallad med quinoa",
+    "Kalkon med zucchininudlar", "Biff med blomkålsris", "Tonfisk med tomat och paprika", "Kyckling med sparris och svamp",
+    "Lax med broccoli och blomkål", "Räkwok med paprika och zucchini", "Grillad kyckling med sallad", "Tofugryta med grönsaker",
+    "Kalkon med spenat och tomat", "Tonfiskwrap med sallad", "Äggomelett med grönsaker", "Kycklingsallad med bönor"
 ]
 
-# Sätt upp Streamlit
 st.set_page_config(page_title="Proteinrik Måltidscoach", layout="wide")
-st.title("🥗 Proteinrik Måltidscoach")
-st.subheader("Ditt veckoschema med kalorisnåla måltider")
 
-# Generera schema
-days = ["Måndag","Tisdag","Onsdag","Torsdag","Fredag","Lördag","Söndag"]
-meals_per_day = 3  # frukost, lunch, middag
+st.title("🍽️ Proteinrik Måltidscoach")
+st.markdown("Skapa ett veckoschema med lunch och middag som är proteinrikt och kalorisnålt.")
 
-week_plan = {}
-for day in days:
-    week_plan[day] = random.sample(meals, meals_per_day)
+# Veckodagar
+weekdays = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag"]
 
-# Visa schemat i snygga kort
-for day, meal_list in week_plan.items():
-    with st.container():
-        st.markdown(f"### {day}")
-        cols = st.columns(meals_per_day)
-        for i, meal in enumerate(meal_list):
-            with cols[i]:
-                st.info(f"🍽️ {meal}")
+if st.button("Generera veckoschema"):
+    st.subheader("Ditt veckoschema")
+    for day in weekdays:
+        lunch = random.choice(dishes)
+        dinner = random.choice(dishes)
+        while dinner == lunch:  # undvik samma rätt för lunch och middag
+            dinner = random.choice(dishes)
+        st.markdown(f"**{day}**")
+        st.markdown(f"- **Lunch:** {lunch}")
+        st.markdown(f"- **Middag:** {dinner}")
+        st.markdown("---")
